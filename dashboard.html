@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEO Satellite Communication Optimizer - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #aaa;
+            font-size: 1.1em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .stat-label {
+            color: #aaa;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .satellite-table {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px;
+            background: rgba(0, 212, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .table-header h2 {
+            font-size: 1.5em;
+        }
+
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.5);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        th {
+            color: #00d4ff;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+        }
+
+        tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+            color: #00d4ff;
+        }
+
+        .error {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #ff6b6b;
+        }
+
+        .lat-positive { color: #00ff88; }
+        .lat-negative { color: #ff6b6b; }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading::after {
+            content: '...';
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛰️ LEO Satellite Communication Optimizer</h1>
+            <p class="subtitle">Real-time Starlink Constellation Tracking</p>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Satellites</div>
+                <div class="stat-value" id="totalSats">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Northern Hemisphere</div>
+                <div class="stat-value" id="northernSats">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Southern Hemisphere</div>
+                <div class="stat-value" id="southernSats">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Altitude (km)</div>
+                <div class="stat-value" id="avgAlt">-</div>
+            </div>
+        </div>
+
+        <div class="satellite-table">
+            <div class="table-header">
+                <h2>📡 Live Satellite Positions</h2>
+                <div class="controls">
+                    <button onclick="loadSatellites()" id="refreshBtn">🔄 Refresh Data</button>
+                    <button onclick="toggleAutoRefresh()" id="autoRefreshBtn">⏱️ Auto-Refresh: OFF</button>
+                </div>
+            </div>
+            <div id="tableContent">
+                <div class="loading">Loading satellite data</div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>Data Source: CelesTrak | Powered by Skyfield & FastAPI</p>
+            <p>Last Updated: <span id="lastUpdate">-</span></p>
+        </footer>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        let autoRefreshInterval = null;
+
+        async function loadSatellites() {
+            const refreshBtn = document.getElementById('refreshBtn');
+            refreshBtn.disabled = true;
+            
+            try {
+                const response = await fetch(`${API_URL}/satellites`);
+                if (!response.ok) throw new Error('Failed to fetch satellite data');
+                
+                const satellites = await response.json();
+                displaySatellites(satellites);
+                updateStats(satellites);
+                updateTimestamp();
+                
+            } catch (error) {
+                document.getElementById('tableContent').innerHTML = `
+                    <div class="error">
+                        <strong>Error:</strong> ${error.message}<br>
+                        Make sure the API server is running on ${API_URL}
+                    </div>
+                `;
+            } finally {
+                refreshBtn.disabled = false;
+            }
+        }
+
+        function displaySatellites(satellites) {
+            const html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Satellite ID</th>
+                            <th>Latitude (°)</th>
+                            <th>Longitude (°)</th>
+                            <th>Altitude (km)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${satellites.map((sat, index) => `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td><strong>${sat.id}</strong></td>
+                                <td class="${sat.lat >= 0 ? 'lat-positive' : 'lat-negative'}">
+                                    ${sat.lat.toFixed(3)}°
+                                </td>
+                                <td>${sat.lon.toFixed(3)}°</td>
+                                <td>${sat.alt.toFixed(2)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('tableContent').innerHTML = html;
+        }
+
+        function updateStats(satellites) {
+            const northern = satellites.filter(s => s.lat > 0).length;
+            const southern = satellites.length - northern;
+            const avgAlt = satellites.reduce((sum, s) => sum + s.alt, 0) / satellites.length;
+
+            document.getElementById('totalSats').textContent = satellites.length;
+            document.getElementById('northernSats').textContent = northern;
+            document.getElementById('southernSats').textContent = southern;
+            document.getElementById('avgAlt').textContent = avgAlt.toFixed(1);
+        }
+
+        function updateTimestamp() {
+            const now = new Date().toLocaleString();
+            document.getElementById('lastUpdate').textContent = now;
+        }
+
+        function toggleAutoRefresh() {
+            const btn = document.getElementById('autoRefreshBtn');
+            
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+                btn.textContent = '⏱️ Auto-Refresh: OFF';
+            } else {
+                autoRefreshInterval = setInterval(loadSatellites, 30000); // 30 seconds
+                btn.textContent = '⏱️ Auto-Refresh: ON (30s)';
+            }
+        }
+
+        // Load data on page load
+        window.addEventListener('load', loadSatellites);
+    </script>
+</body>
+</html>

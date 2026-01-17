@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cesium Test</title>
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <style>
+        @import url("https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Widgets/widgets.css");
+
+        html,
+        body,
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cesiumContainer"></div>
+    <script>
+        try {
+            const viewer = new Cesium.Viewer('cesiumContainer', {
+                imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+                    url: 'https://tile.openstreetmap.org/'
+                }),
+                baseLayerPicker: false,
+                geocoder: false
+            });
+            console.log("Cesium initialized!!");
+            alert("Cesium is working!");
+        } catch (e) {
+            alert("Cesium failed: " + e.message);
+            console.error(e);
+        }
+    </script>
+</body>
+
+</html>
