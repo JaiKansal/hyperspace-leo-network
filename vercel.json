@@ -1,6 +1,30 @@
 {
-  "rewrites": [
-    { "source": "/", "destination": "/globe.html" },
-    { "source": "/(.*)", "destination": "/globe.html" }
-  ]
+    "builds": [
+        {
+            "src": "main.py",
+            "use": "@vercel/python"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/satellites",
+            "dest": "main.py"
+        },
+        {
+            "src": "/route",
+            "dest": "main.py"
+        },
+        {
+            "src": "/toggle-weather",
+            "dest": "main.py"
+        },
+        {
+            "src": "/toggle-storm",
+            "dest": "main.py"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/globe.html"
+        }
+    ]
 }
