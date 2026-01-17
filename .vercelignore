@@ -1,0 +1,15 @@
+# Ignore Python backend files
+main.py
+satellite_engine.py
+requirements.txt
+runtime.txt
+Procfile
+*.py
+__pycache__/
+.venv/
+*.pyc
+
+# Ignore markdown docs
+*.md
+
+# Keep only frontend files
