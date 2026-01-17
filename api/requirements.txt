@@ -1,7 +1,0 @@
-fastapi==0.104.1
-uvicorn==0.24.0
-requests==2.31.0
-skyfield==1.49
-networkx==3.2.1
-pydantic==2.10.4
-numpy<2.0.0
