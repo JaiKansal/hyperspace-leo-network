@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/globe.html" },
+    { "source": "/(.*)", "destination": "/globe.html" }
+  ]
+}
